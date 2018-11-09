@@ -1,0 +1,3 @@
+[submodule "src/lambda_utils"]
+	path = src/lambda_utils
+	url = https://bitbucket.org/spooncast/spooncast-server-lambda-utils

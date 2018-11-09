@@ -1,0 +1,10 @@
+Resources:
+  SqsDeadLetterQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      DelaySeconds: 0
+      MaximumMessageSize: 262144
+      MessageRetentionPeriod: 1209600
+      QueueName: sqs-${env:SLS_SERVICE}-${env:STAGE}-dlq
+      ReceiveMessageWaitTimeSeconds: 0
+      VisibilityTimeout: 20

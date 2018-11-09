@@ -1,0 +1,54 @@
+service: "${env:SLS_SERVICE}"
+
+provider:
+  name: aws
+  runtime: python3.6
+  memorySize: 256
+  timeout: 20
+  region: ${env:REGION}
+  stage: ${env:STAGE}
+  logRetentionInDays: 14
+  deploymentBucket:
+    name: spoon-sls-deploy-${self:provider.region}-${self:provider.stage}
+
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - cloudwatch:PutMetricData
+      Resource: "*"
+    - Effect: Allow
+      Action:
+        - SQS:SendMessage
+      Resource:
+        Fn::GetAtt: [SqsDeadLetterQueue, Arn]
+    # - Effect: Allow
+    #   Action:
+    #   - KMS:Decrypt
+    #   Resource: ${self:custom.kmsSecrets.keyArn}
+
+custom:
+  warmup:
+    schedule: "rate(10 minutes)"
+    payload:
+      source: "warmup"
+  # serverless-kms-secrets:
+  #   secretsFile: kms/secrets.${self:provider.stage}.${self:provider.region}.yml
+  # kmsSecrets: ${file(kms/secrets.${self:provider.stage}.${self:provider.region}.yml)}
+
+resources:
+  - ${file(./resources/alarm-error.yml)}
+  - ${file(./resources/sqs-dlq.yml)}
+
+package:
+  exclude:
+    - "*/**"
+  include:
+    - "./src/**/*.py"
+
+functions:
+
+plugins:
+  - serverless-python-requirements
+  - serverless-plugin-lambda-warmup
+  - serverless-pseudo-parameters
+  # - serverless-kms-secrets

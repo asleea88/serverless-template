@@ -1,0 +1,24 @@
+Resources:
+  AlarmLambdaError:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      Namespace: AWS/Lambda
+      MetricName: Errors
+      Statistic: Sum
+      Period: '60'
+      Dimensions:
+        - Name: "FunctionName"
+          Value:
+            Ref: ""
+      EvaluationPeriods: '1'
+      Threshold: 10
+      ComparisonOperator: GreaterThanThreshold
+      AlarmActions:
+        - "Fn::Join":
+          - ":"
+          - - "arn:aws:sns"
+            - Ref: "AWS::Region"
+            - Ref: "AWS::AccountId"
+            - "AlarmToSlack"
+
+

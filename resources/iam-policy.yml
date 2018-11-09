@@ -1,0 +1,24 @@
+Resources:
+  IamPolicy:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      ManagedPolicyName: "iam-${env:SLS_SERVICE}-${env:STAGE}-policy"
+      Users:
+        - ${env:API_USER_NAME}
+      PolicyDocument: {
+          "Version": "2012-10-17",
+          "Statement": [
+              {
+                  "Sid": "VisualEditor0",
+                  "Effect": "Allow",
+                  "Action": [
+                      "sqs:SendMessage",
+                      "ssm:GetParameter"
+                  ],
+                  "Resource": [
+                    {"Fn::Sub": "arn:aws:sqs:${env:REGION}:#{AWS::AccountId}:sqs-${env:SLS_SERVICE}-${env:STAGE}-*"},
+                    {"Fn::Sub": "arn:aws:ssm:${env:REGION}:#{AWS::AccountId}:parameter/spoon/${env:COUNTRY}/${env:PROJECT}/${env:STAGE}/*"}
+                  ]
+              }
+          ]
+      }
